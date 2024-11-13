@@ -24,8 +24,8 @@ plugins {
     id "base"
 }
 
-version "1.0.19"
-group "com.kyvislabs"
+version "1.0.0"
+group "org.imdc"
 
 
 allprojects {
