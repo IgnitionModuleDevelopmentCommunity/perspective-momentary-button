@@ -1,0 +1,114 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+    ],
+    "properties": {
+        "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether user can currently interact with the Momentary Button"
+        },
+        "controlValue": {
+            "type": ["boolean", "null", "number", "string"],
+            "default": 0,
+            "description": "The property to write the value to"
+        },
+        "indicatorValue": {
+            "type": ["boolean", "null", "number", "string"],
+            "default": 0,
+            "description": "The property to indicate the current state"
+        },
+        "onValue": {
+            "type": ["boolean", "null", "number", "string"],
+            "default": 1,
+            "description": "The value to write to the controlValue when button is pressed"
+        },
+        "offValue": {
+            "type": ["boolean", "null", "number", "string"],
+            "default": 0,
+            "description": "The value to write to the controlValue when button is released"
+        },
+        "onTime": {
+            "type": "number",
+            "default": 1000,
+            "description": "The minimum time (ms) to hold the onValue."
+        },
+        "maxOnTime": {
+            "type": "number",
+            "default": 0,
+            "description": "The maximum time (ms) to hold the onValue. 0 is unlimited."
+        },
+        "activeState": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "The text of the button while the state is active."
+                },
+                "style": {
+                    "$ref" : "urn:ignition-schema:schemas/style-properties.schema.json"
+                },
+                "icon": {
+                    "$ref": "urn:ignition-schema:schemas/icon-schema.json"
+                }
+            },
+            "default": {
+                "text": "Momentary Button Active",
+                "style": {
+                    "classes": "",
+                    "borderStyle": "solid",
+                    "borderColor": "#DE4B4B",
+                    "borderWidth": "2px"
+                },
+                "icon": {
+                    "path": "",
+                    "style": {
+                        "width": "2rem",
+                        "height": "24px"
+                    }
+                }
+            }
+        },
+        "inactiveState": {
+            "type": "object",
+            "properties": {
+                "text": {
+                    "type": "string",
+                    "description": "The text of the button while the state is inactive."
+                },
+                "style": {
+                    "$ref" : "urn:ignition-schema:schemas/style-properties.schema.json"
+                },
+                "icon": {
+                    "$ref": "urn:ignition-schema:schemas/icon-schema.json"
+                }
+            },
+            "default": {
+                "text": "Momentary Button",
+                "style": {
+                    "classes": ""
+                },
+                "icon": {
+                    "path": "",
+                    "style": {
+                        "width": "2rem",
+                        "height": "24px"
+                    }
+                }
+            }
+        },
+        "style": {
+            "$ref": "urn:ignition-schema:schemas/style-properties.schema.json",
+            "default": {
+                "classes": ""
+            }
+        },
+        "disabledStyle": {
+            "$ref": "urn:ignition-schema:schemas/style-properties.schema.json",
+            "default": {
+                "classes": ""
+            }
+        }
+    }
+}
