@@ -51,6 +51,7 @@ export interface MomentaryButtonProps {
 export class MomentaryButton extends Component<ComponentProps<MomentaryButtonProps>, Readonly<MomentaryButtonState>> {
     state: Readonly<MomentaryButtonState>;
     pressedTime: any;
+    mouseInitiated: boolean;
     minHoldTimerId: any;
     maxHoldTimerId: any;
 
@@ -104,6 +105,7 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
 
         if (this.minHoldTimerId) {
             clearInterval(this.minHoldTimerId);
+            this.minHoldTimerId = null;
         }
 
         if (maxOnTime > 0) {
@@ -123,14 +125,19 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
             }
         } = this.props;
 
-        this.props.store.props.write('controlValue', offValue);
+        if (this.mouseInitiated) {
+            this.mouseInitiated = false;
+            this.props.store.props.write('controlValue', offValue);
 
-        if (this.minHoldTimerId) {
-            clearInterval(this.minHoldTimerId);
-        }
+            if (this.minHoldTimerId) {
+                clearInterval(this.minHoldTimerId);
+                this.minHoldTimerId = null;
+            }
 
-        if (this.maxHoldTimerId) {
-            clearInterval(this.maxHoldTimerId);
+            if (this.maxHoldTimerId) {
+                clearInterval(this.maxHoldTimerId);
+                this.maxHoldTimerId = null;
+            }
         }
     }
 
@@ -140,8 +147,10 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
             enabled
         } = this.props.props;
 
-        if (enabled) {
+        if (enabled && !this.state.isActive) {
+            this.mouseInitiated = true;
             this.setOn();
+            window.addEventListener("mouseup", this.handleMouseUp);
         }
     }
 
@@ -152,11 +161,13 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
             onTime
         } = this.props.props;
 
-        if (enabled) {
+        if (enabled && this.mouseInitiated) {
+            window.removeEventListener("mouseup", this.handleMouseUp);
+
             const timeLeft = onTime - (Date.now() - this.pressedTime);
             if (onTime == 0 || timeLeft <= 0) {
                 this.setOff();
-            } else {
+            } else if (this.minHoldTimerId == null) {
                 this.minHoldTimerId = setInterval(this.setOff, timeLeft);
             }
         }

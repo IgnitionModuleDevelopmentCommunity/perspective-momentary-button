@@ -367,6 +367,7 @@ class MomentaryButton extends perspective_client_1.Component {
         const { props: { maxOnTime, onValue }, componentEvents } = this.props;
         if (this.minHoldTimerId) {
             clearInterval(this.minHoldTimerId);
+            this.minHoldTimerId = null;
         }
         if (maxOnTime > 0) {
             this.maxHoldTimerId = setInterval(this.setOff, maxOnTime);
@@ -377,28 +378,36 @@ class MomentaryButton extends perspective_client_1.Component {
     }
     setOff() {
         const { props: { offValue } } = this.props;
-        this.props.store.props.write('controlValue', offValue);
-        if (this.minHoldTimerId) {
-            clearInterval(this.minHoldTimerId);
-        }
-        if (this.maxHoldTimerId) {
-            clearInterval(this.maxHoldTimerId);
+        if (this.mouseInitiated) {
+            this.mouseInitiated = false;
+            this.props.store.props.write('controlValue', offValue);
+            if (this.minHoldTimerId) {
+                clearInterval(this.minHoldTimerId);
+                this.minHoldTimerId = null;
+            }
+            if (this.maxHoldTimerId) {
+                clearInterval(this.maxHoldTimerId);
+                this.maxHoldTimerId = null;
+            }
         }
     }
     handleMouseDown() {
         const { enabled } = this.props.props;
-        if (enabled) {
+        if (enabled && !this.state.isActive) {
+            this.mouseInitiated = true;
             this.setOn();
+            window.addEventListener("mouseup", this.handleMouseUp);
         }
     }
     handleMouseUp() {
         const { enabled, onTime } = this.props.props;
-        if (enabled) {
+        if (enabled && this.mouseInitiated) {
+            window.removeEventListener("mouseup", this.handleMouseUp);
             const timeLeft = onTime - (Date.now() - this.pressedTime);
             if (onTime == 0 || timeLeft <= 0) {
                 this.setOff();
             }
-            else {
+            else if (this.minHoldTimerId == null) {
                 this.minHoldTimerId = setInterval(this.setOff, timeLeft);
             }
         }
