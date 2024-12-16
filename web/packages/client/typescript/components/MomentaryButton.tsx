@@ -142,7 +142,7 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
     }
 
     @bind
-    handleMouseDown() {
+    handleMouseDown(e) {
         const {
             enabled
         } = this.props.props;
@@ -150,19 +150,23 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
         if (enabled && !this.state.isActive) {
             this.mouseInitiated = true;
             this.setOn();
+            window.addEventListener("pointerup", this.handleMouseUp);
             window.addEventListener("mouseup", this.handleMouseUp);
+            window.addEventListener("touchend", this.handleMouseUp);
         }
     }
 
     @bind
-    handleMouseUp() {
+    handleMouseUp(e) {
         const {
             enabled,
             onTime
         } = this.props.props;
 
         if (enabled && this.mouseInitiated) {
+            window.removeEventListener("pointerup", this.handleMouseUp);
             window.removeEventListener("mouseup", this.handleMouseUp);
+            window.removeEventListener("touchend", this.handleMouseUp);
 
             const timeLeft = onTime - (Date.now() - this.pressedTime);
             if (onTime == 0 || timeLeft <= 0) {
@@ -218,8 +222,8 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
                     { ...styleProps }
                     disabled={!enabled}
                     secondary={false}
-                    onMouseUp={this.handleMouseUp}
-                    onMouseDown={this.handleMouseDown}
+                    onPointerUp={this.handleMouseUp}
+                    onPointerDown={this.handleMouseDown}
                 >
                     { textElement }
                     { iconElement }

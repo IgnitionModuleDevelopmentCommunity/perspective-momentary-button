@@ -40,6 +40,7 @@ export class Button extends React.Component<ButtonProps & React.DetailedHTMLProp
         return (
             <button
                 {...remainingProps}
+                draggable={false}
                 disabled={disabled}
                 className={classes}
                 ref={forwardRef}

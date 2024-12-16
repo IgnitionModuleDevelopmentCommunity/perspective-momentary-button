@@ -286,7 +286,7 @@ class Button extends React.Component {
             [PRIMARY]: !secondary,
             [PRIMARY_DISABLED]: !secondary && disabled
         }, className, "popup-not-draggable");
-        return (React.createElement("button", Object.assign({}, remainingProps, { disabled: disabled, className: classes, ref: forwardRef }), children));
+        return (React.createElement("button", Object.assign({}, remainingProps, { draggable: false, disabled: disabled, className: classes, ref: forwardRef }), children));
     }
 }
 exports.Button = Button;
@@ -391,18 +391,22 @@ class MomentaryButton extends perspective_client_1.Component {
             }
         }
     }
-    handleMouseDown() {
+    handleMouseDown(e) {
         const { enabled } = this.props.props;
         if (enabled && !this.state.isActive) {
             this.mouseInitiated = true;
             this.setOn();
+            window.addEventListener("pointerup", this.handleMouseUp);
             window.addEventListener("mouseup", this.handleMouseUp);
+            window.addEventListener("touchend", this.handleMouseUp);
         }
     }
-    handleMouseUp() {
+    handleMouseUp(e) {
         const { enabled, onTime } = this.props.props;
         if (enabled && this.mouseInitiated) {
+            window.removeEventListener("pointerup", this.handleMouseUp);
             window.removeEventListener("mouseup", this.handleMouseUp);
+            window.removeEventListener("touchend", this.handleMouseUp);
             const timeLeft = onTime - (Date.now() - this.pressedTime);
             if (onTime == 0 || timeLeft <= 0) {
                 this.setOff();
@@ -439,7 +443,7 @@ class MomentaryButton extends perspective_client_1.Component {
             classes: ['component-wrapper']
         };
         return (React.createElement("div", Object.assign({}, emit(emitProps, true)),
-            React.createElement(Button_1.Button, Object.assign({}, styleProps, { disabled: !enabled, secondary: false, onMouseUp: this.handleMouseUp, onMouseDown: this.handleMouseDown }),
+            React.createElement(Button_1.Button, Object.assign({}, styleProps, { disabled: !enabled, secondary: false, onPointerUp: this.handleMouseUp, onPointerDown: this.handleMouseDown }),
                 textElement,
                 iconElement)));
     }
@@ -459,13 +463,13 @@ __decorate([
 __decorate([
     bind_decorator_1.bind,
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], MomentaryButton.prototype, "handleMouseDown", null);
 __decorate([
     bind_decorator_1.bind,
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], MomentaryButton.prototype, "handleMouseUp", null);
 exports.MomentaryButton = MomentaryButton;
