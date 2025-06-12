@@ -14,6 +14,11 @@
             "default": 0,
             "description": "The property to write the value to"
         },
+        "controlValueTagPath": {
+            "type": ["string"],
+            "default": "",
+            "description": "The tag path for the control value to use to avoid binding"
+        },
         "indicatorValue": {
             "type": ["boolean", "null", "number", "string"],
             "default": 0,

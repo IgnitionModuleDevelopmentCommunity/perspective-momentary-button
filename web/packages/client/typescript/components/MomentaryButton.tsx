@@ -40,6 +40,7 @@ export interface MomentaryButtonState {
 export interface MomentaryButtonProps {
     enabled: boolean;
     controlValue: MomentaryButtonValueType;
+    controlValueTagPath: string;
     indicatorValue: MomentaryButtonValueType;
     onValue: MomentaryButtonValueType;
     offValue: MomentaryButtonValueType;
@@ -49,6 +50,11 @@ export interface MomentaryButtonProps {
     inactiveState: StateConfig;
     style: Style;
     disabledStyle: Style;
+}
+
+enum MessageEvents {
+    MESSAGE_RESPONSE_EVENT = "momentary-button-response-event",
+    MESSAGE_REQUEST_EVENT = "momentary-button-request-event"
 }
 
 export class MomentaryButtonDelegate extends ComponentStoreDelegate {
@@ -112,10 +118,18 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
         const {
             props: {
                 maxOnTime,
-                onValue
+                onValue,
+                controlValueTagPath
+            },
+            store: {
+                delegate
             },
             componentEvents
         } = this.props;
+
+        const {
+            MESSAGE_REQUEST_EVENT
+        } = MessageEvents;
 
         if (this.minHoldTimerId) {
             clearInterval(this.minHoldTimerId);
@@ -127,7 +141,11 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
         }
 
         this.pressedTime = Date.now();
+
         this.props.store.props.write('controlValue', onValue);
+        if (controlValueTagPath != null && controlValueTagPath != "" && delegate) {
+            delegate.fireEvent(MESSAGE_REQUEST_EVENT, { "state": "on" });
+        }
         componentEvents.fireComponentEvent("onActionPerformed", {});
     }
 
@@ -135,13 +153,25 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
     setOff() {
         const {
             props: {
-                offValue
+                offValue,
+                controlValueTagPath
+            },
+            store: {
+                delegate
             }
         } = this.props;
 
+        const {
+            MESSAGE_REQUEST_EVENT
+        } = MessageEvents;
+
         if (this.mouseInitiated) {
             this.mouseInitiated = false;
+
             this.props.store.props.write('controlValue', offValue);
+            if (controlValueTagPath != null && controlValueTagPath != "" && delegate) {
+                delegate.fireEvent(MESSAGE_REQUEST_EVENT, { "state": "off" });
+            }
 
             if (this.minHoldTimerId) {
                 clearInterval(this.minHoldTimerId);
@@ -288,6 +318,7 @@ export class MomentaryButtonMeta implements ComponentMeta {
         return {
             enabled: tree.readBoolean('enabled', true),
             controlValue: tree.read("controlValue", 0),
+            controlValueTagPath: tree.readString("controlValueTagPath"),
             indicatorValue: tree.read("indicatorValue", 0),
             onValue: tree.read("onValue", 1),
             offValue: tree.read("offValue", 0),

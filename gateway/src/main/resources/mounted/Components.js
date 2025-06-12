@@ -339,6 +339,11 @@ const bind_decorator_1 = __webpack_require__(/*! bind-decorator */ "../../node_m
 const Button_1 = __webpack_require__(/*! ./Button */ "./typescript/components/Button.tsx");
 exports.COMPONENT_TYPE = "imdc.perspective.momentarybutton";
 const logger = perspective_client_1.makeLogger(exports.COMPONENT_TYPE);
+var MessageEvents;
+(function (MessageEvents) {
+    MessageEvents["MESSAGE_RESPONSE_EVENT"] = "momentary-button-response-event";
+    MessageEvents["MESSAGE_REQUEST_EVENT"] = "momentary-button-request-event";
+})(MessageEvents || (MessageEvents = {}));
 class MomentaryButtonDelegate extends perspective_client_1.ComponentStoreDelegate {
     constructor(componentStore) {
         super(componentStore);
@@ -365,7 +370,7 @@ class MomentaryButton extends perspective_client_1.Component {
     }
     componentDidMount() {
         logger.debug("Component mounted");
-        // window.addEventListener("unload", this.setOff);
+        window.addEventListener("unload", this.setOff);
     }
     componentDidUpdate(prevProps) {
         logger.debug("Component updated");
@@ -378,10 +383,10 @@ class MomentaryButton extends perspective_client_1.Component {
     }
     componentWillUnmount() {
         logger.debug("Component unmounted");
-        // this.setOff();
     }
     setOn() {
-        const { props: { maxOnTime, onValue }, componentEvents } = this.props;
+        const { props: { maxOnTime, onValue, controlValueTagPath }, store: { delegate }, componentEvents } = this.props;
+        const { MESSAGE_REQUEST_EVENT } = MessageEvents;
         if (this.minHoldTimerId) {
             clearInterval(this.minHoldTimerId);
             this.minHoldTimerId = null;
@@ -391,13 +396,20 @@ class MomentaryButton extends perspective_client_1.Component {
         }
         this.pressedTime = Date.now();
         this.props.store.props.write('controlValue', onValue);
+        if (controlValueTagPath != null && controlValueTagPath != "" && delegate) {
+            delegate.fireEvent(MESSAGE_REQUEST_EVENT, { "state": "on" });
+        }
         componentEvents.fireComponentEvent("onActionPerformed", {});
     }
     setOff() {
-        const { props: { offValue } } = this.props;
+        const { props: { offValue, controlValueTagPath }, store: { delegate } } = this.props;
+        const { MESSAGE_REQUEST_EVENT } = MessageEvents;
         if (this.mouseInitiated) {
             this.mouseInitiated = false;
             this.props.store.props.write('controlValue', offValue);
+            if (controlValueTagPath != null && controlValueTagPath != "" && delegate) {
+                delegate.fireEvent(MESSAGE_REQUEST_EVENT, { "state": "off" });
+            }
             if (this.minHoldTimerId) {
                 clearInterval(this.minHoldTimerId);
                 this.minHoldTimerId = null;
@@ -523,6 +535,7 @@ class MomentaryButtonMeta {
         return {
             enabled: tree.readBoolean('enabled', true),
             controlValue: tree.read("controlValue", 0),
+            controlValueTagPath: tree.readString("controlValueTagPath"),
             indicatorValue: tree.read("indicatorValue", 0),
             onValue: tree.read("onValue", 1),
             offValue: tree.read("offValue", 0),
