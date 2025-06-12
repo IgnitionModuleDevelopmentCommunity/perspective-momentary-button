@@ -339,6 +339,22 @@ const bind_decorator_1 = __webpack_require__(/*! bind-decorator */ "../../node_m
 const Button_1 = __webpack_require__(/*! ./Button */ "./typescript/components/Button.tsx");
 exports.COMPONENT_TYPE = "imdc.perspective.momentarybutton";
 const logger = perspective_client_1.makeLogger(exports.COMPONENT_TYPE);
+class MomentaryButtonDelegate extends perspective_client_1.ComponentStoreDelegate {
+    constructor(componentStore) {
+        super(componentStore);
+    }
+    handleEvent(eventName, eventObject) {
+        const eventObjectStr = JSON.stringify(eventObject);
+        logger.debug("Received '" + eventName + "' event: " + eventObjectStr);
+    }
+}
+__decorate([
+    bind_decorator_1.bind,
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], MomentaryButtonDelegate.prototype, "handleEvent", null);
+exports.MomentaryButtonDelegate = MomentaryButtonDelegate;
 class MomentaryButton extends perspective_client_1.Component {
     constructor(props) {
         super(props);
@@ -349,7 +365,7 @@ class MomentaryButton extends perspective_client_1.Component {
     }
     componentDidMount() {
         logger.debug("Component mounted");
-        window.addEventListener("unload", this.setOff);
+        // window.addEventListener("unload", this.setOff);
     }
     componentDidUpdate(prevProps) {
         logger.debug("Component updated");
@@ -362,6 +378,7 @@ class MomentaryButton extends perspective_client_1.Component {
     }
     componentWillUnmount() {
         logger.debug("Component unmounted");
+        // this.setOff();
     }
     setOn() {
         const { props: { maxOnTime, onValue }, componentEvents } = this.props;
@@ -498,6 +515,9 @@ class MomentaryButtonMeta {
             width: 140,
             height: 36
         });
+    }
+    createDelegate(component) {
+        return new MomentaryButtonDelegate(component);
     }
     getPropsReducer(tree) {
         return {

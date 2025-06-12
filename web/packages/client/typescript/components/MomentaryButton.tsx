@@ -3,6 +3,8 @@ import {
     Component,
     ComponentMeta,
     ComponentProps,
+    ComponentStoreDelegate,
+    AbstractUIElementStore,
     EmitProps,
     IconRenderer,
     IconRendererConfig,
@@ -12,6 +14,7 @@ import {
     PropertyTree,
     SizeObject,
     StyleObject,
+    PlainObject,
     Style,
     StyleProps
 } from '@inductiveautomation/perspective-client';
@@ -48,6 +51,18 @@ export interface MomentaryButtonProps {
     disabledStyle: Style;
 }
 
+export class MomentaryButtonDelegate extends ComponentStoreDelegate {
+    constructor(componentStore: AbstractUIElementStore) {
+        super(componentStore);
+    }
+
+    @bind
+    handleEvent(eventName: string, eventObject: PlainObject): void {
+        const eventObjectStr = JSON.stringify(eventObject);
+        logger.debug("Received '" + eventName + "' event: " + eventObjectStr);
+    }
+}
+
 export class MomentaryButton extends Component<ComponentProps<MomentaryButtonProps>, Readonly<MomentaryButtonState>> {
     state: Readonly<MomentaryButtonState>;
     pressedTime: any;
@@ -70,7 +85,6 @@ export class MomentaryButton extends Component<ComponentProps<MomentaryButtonPro
 
     componentDidMount () {
         logger.debug("Component mounted");
-
         window.addEventListener("unload", this.setOff);
     }
 
@@ -264,6 +278,10 @@ export class MomentaryButtonMeta implements ComponentMeta {
             width: 140,
             height: 36
         });
+    }
+
+    createDelegate(component: AbstractUIElementStore): ComponentStoreDelegate | undefined {
+        return new MomentaryButtonDelegate(component);
     }
 
     getPropsReducer(tree: PropertyTree): MomentaryButtonProps {

@@ -41,6 +41,11 @@ public class GatewayHook extends AbstractGatewayModuleHook {
         } else {
             log.error("Reference to component registry not found, Components will fail to function!");
         }
+
+        if (this.modelDelegateRegistry != null){
+            log.info("Registering model delegates.");
+            this.modelDelegateRegistry.register(MomentaryButton.COMPONENT_ID, MomentaryButtonDelegate::new);
+        }
     }
 
     @Override
@@ -50,6 +55,11 @@ public class GatewayHook extends AbstractGatewayModuleHook {
             this.componentRegistry.removeComponent(MomentaryButton.COMPONENT_ID);
         } else {
             log.warn("Component registry was null, could not unregister Components.");
+        }
+
+        if (this.modelDelegateRegistry != null){
+            log.info("Unregistering model delegates.");
+            this.modelDelegateRegistry.remove(MomentaryButton.COMPONENT_ID);
         }
     }
 
